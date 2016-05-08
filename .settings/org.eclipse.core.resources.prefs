@@ -1,3 +1,16 @@
 eclipse.preferences.version=1
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/BankHoliday.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/CodeDescriptionBase.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/Country.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/CountryCode.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/Holiday.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/HolidayCode.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/HolidayDateType.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/HolidayService2.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/HolidayService2Locator.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/HolidayService2Soap.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/HolidayService2SoapStub.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/HolidayType.java=UTF-8
+encoding//src/main/java/com/coolisland/trackmystocks/nonworkdays/RegionCode.java=UTF-8
 encoding//src/main/webapp/WEB-INF/views/selectAccount.jsp=UTF-8
 encoding//src/main/webapp/WEB-INF/views/viewStocksMovingAverage.jsp=UTF-8

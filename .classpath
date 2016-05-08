@@ -5,15 +5,95 @@
 	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
 	<classpathentry excluding="**/*.java" kind="src" path="src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/junit-4.12.jar"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/slf4j-1.7.10/slf4j-api-1.7.10.jar"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/spring-web-4.1.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/spring-context-4.1.4.RELEASE (1).jar"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/json-simple-1.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/opencsv-1.7.jar"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/Apache/commons-lang3-3.1/commons-lang3-3.1.jar"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/mysql-connector-java-5.1.9.jar"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/hamcrest-library-1.3.rc2.jar"/>
-	<classpathentry kind="lib" path="C:/Development/Devtools/hamcrest-core-1.3.rc2.jar"/>
+	<classpathentry kind="lib" path="C:/Development/Devtools/junit-4.12.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/spring-web-4.1.4.RELEASE.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/spring-context-4.1.4.RELEASE (1).jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/json-simple-1.1.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/opencsv-1.7.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/Apache/commons-lang3-3.1/commons-lang3-3.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/mysql-connector-java-5.1.9.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/hamcrest-library-1.3.rc2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/hamcrest-core-1.3.rc2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/slf4j-1.7.13/slf4j-log4j12-1.7.13.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/slf4j-1.7.13/slf4j-api-1.7.13.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Development/Devtools/Log4j/log4j-1.2.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Silvio/.p2/pool/plugins/org.apache.axis_1.4.0.v201411182030/lib/axis.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Silvio/.p2/pool/plugins/org.apache.commons.discovery_0.2.0.v201004190315/lib/commons-discovery-0.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Silvio/.p2/pool/plugins/javax.xml.rpc_1.1.0.v201209140446/lib/jaxrpc.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Silvio/.p2/pool/plugins/javax.xml.soap_1.2.0.v201005080501/lib/saaj.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Silvio/.p2/pool/plugins/javax.wsdl_1.6.2.v201012040545.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/Silvio/.p2/pool/plugins/org.apache.commons.logging_1.1.1.v201101211721.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

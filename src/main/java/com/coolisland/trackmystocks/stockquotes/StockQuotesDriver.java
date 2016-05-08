@@ -3,16 +3,24 @@ package com.coolisland.trackmystocks.stockquotes;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.coolisland.trackmystocks.database.CheckDatabaseConnection;
-import com.coolisland.trackmystocks.sellbuy.AddStockToAccount;
+import com.coolisland.trackmystocks.nonworkdays.NonWorkDays;
 import com.coolisland.trackmystocks.sellbuy.BuyStock;
 import com.coolisland.trackmystocks.sellbuy.SellStock;
+import com.coolisland.trackmystocks.utils.AddStockToAccount;
 import com.coolisland.trackmystocks.utils.InputUtils;
 import com.coolisland.trackmystocks.yahoo.PopulateHistoricalPrices;
 
 public class StockQuotesDriver {
+	private static final Logger logger = LoggerFactory.getLogger(StockQuotesDriver.class);
 
 	private static final int RETRY_CHOICE = -1;
+
+	private static final int EXIT_CHOICE = 0;
+	private static final String EXIT_MSG = "Exit";
 
 	private static final int POPULATE_HISTORICAL_PRICE_CHOICE = 1;
 	private static final String POPULATE_HISTORICAL_PRICES_MSG = "Populate Historical Prices";
@@ -26,67 +34,67 @@ public class StockQuotesDriver {
 	private static final int SELL_STOCK_CHOICE = 4;
 	private static final String SELL_STOCK_MSG = "Sell Stock";
 
-	private static final int EXIT_CHOICE = 0;
-	private static final String EXIT_MSG = "Exit";
-
 	private static final int CHECK_DB_CHOICE = 5;
 	private static final String CHECK_DB_MSG = "Check Database Connection";
 
 	private static final int ADD_STOCK_CHOICE = 6;
 	private static final String ADD_STOCK_MSG = "Add New Stock Option to Account";
 
+	private static final int UPDATE_NON_WORKDAYS_CHOICE = 7;
+	private static final String UPDATE_NON_WORKDAYS_MSG = "Update non-work days";
+
 	/**
 	 * 
 	 * @param appChoices
 	 * @return
 	 */
-//	private int getChoice(HashMap<Integer, String> appChoices) {
-//		Integer choice = RETRY_CHOICE;
-//		
-//		try {
-//			if (System.in.available() != 0) {
-//				if (System.in.markSupported()) {
-//					System.in.reset();
-//				}
-//			}
-//		} catch (IOException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//		
-//		Scanner scanner = new Scanner(System.in);
-//
-//		try {
-//			if (scanner != null) {
-//				if (scanner.hasNextInt()) {
-//					System.out.println("has next");
-//					
-//					choice = new Integer(scanner.nextInt());
-//				}
-//			}
-//			
-//		} catch (NoSuchElementException nsee) {
-//			;
-//		} catch (Exception e) {
-//			System.out.println(e);
-//			e.printStackTrace();
-//		} finally {
-//			scanner.close();
-//		}
-//
-//		try {
-//			if (!appChoices.containsKey(choice)) {
-//				System.out.println("Bad choice. Try again");
-//				choice = RETRY_CHOICE;
-//			}
-//
-//			// System.out.println("User entered: " + choice);
-//		} catch (InputMismatchException e) {
-//			System.out.println("Invalid Response");
-//		}
-//
-//		return choice.intValue();
-//	}
+	// private int getChoice(HashMap<Integer, String> appChoices) {
+	// Integer choice = RETRY_CHOICE;
+	//
+	// try {
+	// if (System.in.available() != 0) {
+	// if (System.in.markSupported()) {
+	// System.in.reset();
+	// }
+	// }
+	// } catch (IOException e1) {
+	// // TODO Auto-generated catch block
+	// e1.printStackTrace();
+	// }
+	//
+	// Scanner scanner = new Scanner(System.in);
+	//
+	// try {
+	// if (scanner != null) {
+	// if (scanner.hasNextInt()) {
+	// System.out.println("has next");
+	//
+	// choice = new Integer(scanner.nextInt());
+	// }
+	// }
+	//
+	// } catch (NoSuchElementException nsee) {
+	// ;
+	// } catch (Exception e) {
+	// System.out.println(e);
+	// e.printStackTrace();
+	// } finally {
+	// scanner.close();
+	// }
+	//
+	// try {
+	// if (!appChoices.containsKey(choice)) {
+	// System.out.println("Bad choice. Try again");
+	// choice = RETRY_CHOICE;
+	// }
+	//
+	// // System.out.println("User entered: " + choice);
+	// } catch (InputMismatchException e) {
+	// System.out.println("Invalid Response");
+	// }
+	//
+	// return choice.intValue();
+	// }
 
 	private void printMenuChoiceList(HashMap<Integer, String> menuChoices) {
 
@@ -113,6 +121,7 @@ public class StockQuotesDriver {
 		appChoices.put(SELL_STOCK_CHOICE, SELL_STOCK_MSG);
 		appChoices.put(CHECK_DB_CHOICE, CHECK_DB_MSG);
 		appChoices.put(ADD_STOCK_CHOICE, ADD_STOCK_MSG);
+		appChoices.put(UPDATE_NON_WORKDAYS_CHOICE, UPDATE_NON_WORKDAYS_MSG);
 		appChoices.put(EXIT_CHOICE, EXIT_MSG);
 
 		try {
@@ -152,13 +161,18 @@ public class StockQuotesDriver {
 					test.run();
 
 					break;
-					
+
 				case ADD_STOCK_CHOICE:
 					AddStockToAccount add = new AddStockToAccount();
 					add.run();
 
 					break;
-					
+
+				case UPDATE_NON_WORKDAYS_CHOICE:
+					NonWorkDays nonWorkDays = new NonWorkDays();
+					nonWorkDays.run();
+
+					break;
 				case EXIT_CHOICE:
 					return;
 
@@ -179,6 +193,9 @@ public class StockQuotesDriver {
 	 */
 	public static void main(String[] args) {
 		StockQuotesDriver driver = new StockQuotesDriver();
+
+		// SystemProperties sysProp = new SystemProperties();
+		// sysProp.printSystemProperties();
 
 		driver.chooseAppToRun();
 	}

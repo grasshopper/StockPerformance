@@ -8,8 +8,12 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class DataBaseManager {
+	private static final Logger logger = LoggerFactory.getLogger(DataBaseManager.class);
 	private boolean autoCommit = true;
 	
 	private static class DataBaseManagerSingleton {
@@ -39,7 +43,7 @@ public class DataBaseManager {
 		if (conn != null) {
 			try {
 				conn.close();
-				System.out.println("Database connection terminated");
+				logger.debug("Database connection terminated");
 			} catch (Exception e) { /* ignore close errors */
 			}
 		}
@@ -52,8 +56,9 @@ public class DataBaseManager {
 	 * @throws SQLException
 	 */
 	public int executeInsert(PreparedStatement statement) throws SQLException {
-		// String method = "executeInsert";
-		// System.out.println("Starting " + method);
+		 String method = "executeInsert";
+		 logger.trace("Starting " + method);
+
 		// boolean success = false;
 		//
 		// success = statement.execute();
@@ -63,13 +68,20 @@ public class DataBaseManager {
 
 		int rowsUpdated = 0;
 
-		statement.execute();
+		try {
+			statement.execute();
+		} catch (SQLException e) {
+			logger.error("Error executing insert statement");
+			logger.error(statement.toString());
+			e.printStackTrace();
+		}
 
+		
 		ResultSet resultSet = null;
 		try {
 			resultSet = statement.getResultSet();
 			if (resultSet != null) {
-				System.out.println("ResultSet: " + resultSet);
+				logger.debug("ResultSet: " + resultSet);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -79,16 +91,17 @@ public class DataBaseManager {
 		try {
 			rowsUpdated = statement.getUpdateCount();
 			if (rowsUpdated != 1) {
-				System.out.println("getUpdateCount(): " + rowsUpdated);
+				logger.debug("getUpdateCount(): " + rowsUpdated);
 			}
 
 			SQLWarning warnings = statement.getWarnings();
 			if (warnings != null) {
-				System.out.println("Warnings: " + warnings);
-				System.out.println(statement.toString());
-				System.out.println("Rows updated: " + rowsUpdated);
+				logger.warn("Warnings: " + warnings);
+				logger.warn(statement.toString());
+				logger.warn("Rows updated: " + rowsUpdated);
 			}
 		} catch (SQLException e) {
+			logger.error(statement.toString());
 			e.printStackTrace();
 			throw new SQLException(e.getMessage(), e.getCause());
 		}
@@ -100,9 +113,9 @@ public class DataBaseManager {
 				if (1062 == e.getErrorCode()) {
 					conn.rollback();
 				} else {
-					System.out.println("SQL State: " + e.getSQLState());
-					System.out.println("Error update record(s).");
-					System.out.println("SQL: " + statement.toString());
+					logger.error("SQL State: " + e.getSQLState());
+					logger.error("Error update record(s).");
+					logger.error("SQL: " + statement.toString());
 	
 					e.printStackTrace();
 					throw new SQLException(e.getMessage(), e.getCause());
@@ -110,7 +123,7 @@ public class DataBaseManager {
 			}
 		}
 
-		// System.out.println("Exiting " + method + ". " + rowsUpdated +
+		// logger.trace("Exiting " + method + ". " + rowsUpdated +
 		// " rows were updated");
 		return rowsUpdated;
 	}
@@ -125,12 +138,12 @@ public class DataBaseManager {
 			resultSet = s.executeQuery(sql);
 
 			if (resultSet == null) {
-				System.out.println("SQL statement: " + sql);
-				System.out.println("No Results Found");
+				logger.debug("SQL statement: " + sql);
+				logger.debug("No Results Found");
 			}
 
 		} catch (SQLException e) {
-			System.out.println("SQL statement: " + sql);
+			logger.error("SQL statement: " + sql);
 			e.printStackTrace();
 			throw new SQLException(e.getMessage(), e.getCause());
 		} finally {
@@ -153,23 +166,23 @@ public class DataBaseManager {
 
 		try {
 			int result = pstmt.executeUpdate();
-			System.out.println("result: " + result);
+			logger.debug("result: " + result);
 
 			ResultSet resultSet = pstmt.getResultSet();
 			if (resultSet != null) {
-				System.out.println("ResultSet: " + resultSet);
+				logger.debug("ResultSet: " + resultSet);
 			}
 
 			rowsUpdated = pstmt.getUpdateCount();
-			System.out.println("getUpdateCount(): " + rowsUpdated);
+			logger.debug("getUpdateCount(): " + rowsUpdated);
 
 			SQLWarning warnings = pstmt.getWarnings();
 			if (warnings != null) {
-				System.out.println("Warnings: " + warnings);
+				logger.warn("Warnings: " + warnings);
 			}
 		} catch (SQLException e) {
-			System.out.println("Error update record(s).");
-			System.out.println("SQL: " + pstmt.toString());
+			logger.error("Error update record(s).");
+			logger.error("SQL: " + pstmt.toString());
 
 			e.printStackTrace();
 			throw new SQLException(e.getMessage(), e.getCause());
@@ -197,7 +210,7 @@ public class DataBaseManager {
 
 	private boolean isAlive() {
 		final String sql = "SELECT 1";
-		Statement s;
+		Statement s = null;
 		boolean alive = false;
 
 		if (conn == null) {
@@ -212,7 +225,12 @@ public class DataBaseManager {
 				alive = true;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			if (s != null) {
+				logger.error(s.toString());
+			} else {
+				logger.error("Statement is null");
+			}
+			
 			e.printStackTrace();
 			alive = false;
 		}
@@ -224,7 +242,7 @@ public class DataBaseManager {
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			conn = DriverManager.getConnection(url, userName, password);
-			// System.out.println("Database connection established");
+			// logger.trace("Database connection established");
 
 			isAlive();
 
@@ -232,10 +250,10 @@ public class DataBaseManager {
 			conn.setAutoCommit(true);
 			autoCommit = true;
 		} catch (Exception e) {
-			System.err.println("Cannot connect to database server");
-			System.err.println("url: " + url);
-			System.err.println("userName: " + userName);
-			System.err.println("password: " + password);
+			logger.error("Cannot connect to database server");
+			logger.error("url: " + url);
+			logger.error("userName: " + userName);
+			logger.error("password: " + password);
 			
 			throw new SQLException(e.getMessage(), e.getCause());
 		}
@@ -248,10 +266,22 @@ public class DataBaseManager {
 			preparedStmt = conn.prepareStatement(sql);
 
 		} catch (SQLException e) {
+			if (sql != null) {
+				logger.error("sql: " + sql);
+			} else {
+				logger.error("sql is null");
+			}
+
 			e.printStackTrace();
 			throw new SQLException(e.getMessage(), e.getCause());
 		}
 
+		if (preparedStmt != null) {
+			logger.trace("Statement: " + preparedStmt.toString());
+		} else {
+			logger.trace("Statement is null");
+		}
+		
 		return preparedStmt;
 	}
 }

@@ -1,7 +1,9 @@
 package com.coolisland.trackmystocks.utils;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,12 +21,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-
 public class StringUtils {
 	public static final String LINE_FEED = "\n";
 	public static final String INDENT = "   ";
 	private static final String HEADER_STR = "====================================";
-
 
 	public static String appendHeader(StringBuffer out, String subject, String indent) {
 		out.append(LINE_FEED + INDENT);
@@ -58,7 +58,6 @@ public class StringUtils {
 			appendNameValueLine(out, name, "null", myIndent);
 		}
 	}
-
 
 	public static String xmlToString(String xml) {
 		StringBuffer out = new StringBuffer(100);
@@ -200,5 +199,104 @@ public class StringUtils {
 		}
 
 		return truncatedString;
+	}
+
+	
+	/**
+	 * 
+	 * @param strNumber
+	 * @param numDigits
+	 * @return
+	 */
+	public static String convertToNumber(String strNumber, int numDigits) {
+		String strFormattedValue;
+
+		String format = "%." + numDigits + "f";
+		Double doubleNumber = new Double(strNumber);
+		strFormattedValue = String.format(format, doubleNumber.floatValue());
+
+		return strFormattedValue;
+	}
+
+	
+	
+	public static String getStringInput(String inputMsg) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		System.out.print(inputMsg);
+		String s = br.readLine();
+
+		return s;
+	}
+
+	
+	public static String getYesNoInput(String originalMessage) {
+		String input = null;
+		String message = new String(originalMessage);
+
+		while (input == null) {
+			try {
+				input = getStringInput(message);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			if (input == null) {
+				input = "Yes";
+			}
+			else if (input.length() > 0) {
+				if ("Yes".equalsIgnoreCase(input)
+						|| "Y".equalsIgnoreCase(input)) {
+					input = new String("Yes");
+				} else if ("No".equalsIgnoreCase(input)
+						|| "N".equalsIgnoreCase(input)) {
+					input = new String("No");
+				} else {
+					message = new String(originalMessage + " (Enters Yes or No) ");
+					
+					input = null;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static int getYearInput(String originalMessage) {
+		String input = null;
+		String message = new String(originalMessage);
+		Integer year = null;
+
+		while (input == null) {
+			try {
+				input = getStringInput(message);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			if (input.length() > 0) {
+				if (org.apache.commons.lang3.StringUtils.isNumeric(input)) {
+					// convert the input to a number
+					try {
+						year = new Integer(input);
+					}
+					catch (Exception e) {
+						// try again
+						input = null;
+						System.out.println("Please enter a valid year");
+						break;
+					}
+					
+					// is it a valid year?
+					if (year.intValue() < 2010) {
+						System.out.println("Invalid year. Please enter a valid year.");
+						input = null;
+					}
+				}
+			}
+		}
+
+		return year.intValue();
 	}
 }

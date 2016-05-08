@@ -8,8 +8,13 @@ import java.sql.SQLWarning;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class StockDao {
+	private static final Logger logger = LoggerFactory.getLogger(StockDao.class);
+
 	public enum Ownership {
 		BUY(true), SELL(false);
 
@@ -27,10 +32,10 @@ public class StockDao {
 		public String toString() {
 			switch (this) {
 			case BUY:
-				System.out.println("Buy");
+				logger.debug("Buy");
 				break;
 			case SELL:
-				System.out.println("Sell");
+				logger.debug("Sell");
 				break;
 			}
 			return super.toString();
@@ -104,7 +109,7 @@ public class StockDao {
 
 	public StockBO createStock(StockBO stock) throws Exception {
 		String method = "createStock";
-		System.out.println("Starting " + method);
+		logger.debug("Starting " + method);
 		
 		PreparedStatement pstmt = null;
 		int recInserted = 0;
@@ -128,7 +133,7 @@ public class StockDao {
 			pstmt.setInt(8, stock.getTickerTypeId().intValue());
 			pstmt.setString(9, stock.getGraphUrl());
 			
-//			System.out.println("SQL statement: " + pstmt.toString());
+//			logger.debug("SQL statement: " + pstmt.toString());
 
 			recInserted = dbManager.executeInsert(pstmt);
 		} catch (SQLException e) {
@@ -137,10 +142,10 @@ public class StockDao {
 		}
 		
 		if (recInserted > 0) {
-			System.out.println("Exiting " + method + ". Record was inserted: " + stock);
+			logger.debug("Exiting " + method + ". Record was inserted: " + stock);
 		} else {
-			System.out.println("Exiting " + method + ". Failed to insert record: " + stock);
-			System.out.println("SQL statement: " + pstmt.toString());
+			logger.debug("Exiting " + method + ". Failed to insert record: " + stock);
+			logger.debug("SQL statement: " + pstmt.toString());
 
 			throw new Exception("Unable to insert record: " + stock);
 		}
@@ -174,7 +179,7 @@ public class StockDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("SQL statement: " + pstmt);
+			logger.debug("SQL statement: " + pstmt);
 
 			throw new SQLException(e.getMessage(), e.getCause());
 		}
@@ -207,7 +212,7 @@ public class StockDao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out.println("SQL statement: " + pstmt.toString());
+			logger.debug("SQL statement: " + pstmt.toString());
 
 			throw new SQLException(e.getMessage(), e.getCause());
 		}
@@ -217,7 +222,7 @@ public class StockDao {
 
 	private Long getNextSequenceId()  throws SQLException {
 		String method = "getNextSequenceId";
-		System.out.println("Starting " + method);
+		logger.debug("Starting " + method);
 		
 		ResultSet result = null;
 		PreparedStatement pstmt = null;
@@ -228,7 +233,7 @@ public class StockDao {
 
 			pstmt = dbManager.prepareStatement(sql);
 
-//			System.out.println("SQL statement: " + pstmt.toString());
+//			logger.debug("SQL statement: " + pstmt.toString());
 
 			result = pstmt.executeQuery();
 
@@ -243,7 +248,7 @@ public class StockDao {
 		}
 
 		nextId++;
-		System.out.println("Exiting " + method + " with id: " + nextId);
+		logger.debug("Exiting " + method + " with id: " + nextId);
 		
 		return nextId;
 	}
@@ -290,7 +295,7 @@ public class StockDao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			System.out.println("SQL statement: " + pstmt.toString());
+			logger.debug("SQL statement: " + pstmt.toString());
 
 			throw new SQLException(e.getMessage(), e.getCause());
 		}
@@ -327,12 +332,12 @@ public class StockDao {
 		try {
 			String query = SELECT_TICKER_FOR_SYMBOL + "'" + tickerSymbol + "'";
 
-//			System.out.println("query: " + query);
+//			logger.debug("query: " + query);
 			
 			ResultSet rs = DataBaseManager.getInstance().executeQuery(query);
 
 			if (rs != null) {
-//				System.out.println("rs: " + rs);
+//				logger.debug("rs: " + rs);
 				
 				if (rs.first()) {
 					tickerBo = new StockBO(rs);
@@ -404,7 +409,7 @@ public class StockDao {
 			// Set the values
 			pstmt.setInt(1, accountId);
 
-//			System.out.println("SQL statement: " + pstmt.toString());
+//			logger.debug("SQL statement: " + pstmt.toString());
 
 			result = pstmt.executeQuery();
 
@@ -445,7 +450,7 @@ public class StockDao {
 
 	public boolean deleteStock(StockBO stock) throws SQLException {
 		String method = "deleteStock";
-		System.out.println("Starting " + method);
+		logger.debug("Starting " + method);
 
 		PreparedStatement pstmt = null;
 
@@ -455,11 +460,11 @@ public class StockDao {
 
 		pstmt.setInt(1, stock.getId().intValue());
 
-		System.out.println("SQL statement: " + pstmt.toString());
+		logger.debug("SQL statement: " + pstmt.toString());
 
 		boolean result = pstmt.execute();
 
-		System.out.println("result: " + result);
+		logger.debug("result: " + result);
 
 		if (result == false) {
 			SQLWarning warnings = pstmt.getWarnings();
@@ -467,11 +472,11 @@ public class StockDao {
 					.getWarnings();
 
 			if (warnings != null) {
-				System.out.println("Warnings: " + warnings);
-				System.out.println(pstmt.toString());
+				logger.debug("Warnings: " + warnings);
+				logger.debug(pstmt.toString());
 			}
 
-			System.out.println("Rows updated: " + pstmt.getUpdateCount());
+			logger.debug("Rows updated: " + pstmt.getUpdateCount());
 		}
 
 		return result;

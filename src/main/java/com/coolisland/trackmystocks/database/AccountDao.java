@@ -10,11 +10,16 @@ import java.sql.SQLWarning;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Silvio
  * 
  */
 public class AccountDao {
+	private static final Logger logger = LoggerFactory.getLogger(AccountDao.class);
+
 	private static final String SELECT_ACCOUNT_STATMENT = "SELECT * FROM ACCOUNT WHERE NAME = ?";
 	private static final String SELECT_PRIMARY_STATMENT = "SELECT * FROM ACCOUNT WHERE PARENT_ID IS NULL";
 	private static final String SELECT_STATMENT = "SELECT * FROM ACCOUNT";

@@ -11,7 +11,7 @@ import java.util.Date;
  */
 public class PriceBean {
 	private String price;
-	Date priceDate = null;
+	private Date priceDate = null;
 
 	public PriceBean() {
 		price = "";

@@ -1,5 +1,10 @@
 select sysdate() from dual;
 
+SELECT A.*
+FROM   ACCOUNT A;
+
+
+
 SELECT T.ID, 
 	   T.SYMBOL, 
 	   T.NAME, 
@@ -25,3 +30,9 @@ values
 select * 
 from   account;
 
+delete from account
+where  NAME = "Test Account"
+       and id = 100;
+
+
+commit;

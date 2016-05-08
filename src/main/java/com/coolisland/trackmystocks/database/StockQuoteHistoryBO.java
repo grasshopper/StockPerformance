@@ -2,16 +2,19 @@ package com.coolisland.trackmystocks.database;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.coolisland.trackmystocks.utils.StringUtils;
 
-
-
 public class StockQuoteHistoryBO {
+	private static final Logger logger = LoggerFactory
+			.getLogger(StockQuoteHistoryBO.class);
+
 	BigDecimal changeAmount = null;
 	BigDecimal changePercent = null;
 	BigDecimal dailyVolume = null;
@@ -61,14 +64,10 @@ public class StockQuoteHistoryBO {
 	}
 
 	public BigDecimal getDayHighAmount() {
-		// System.out.println("Day High Amount: " + dayHighAmount);
-
 		return dayHighAmount;
 	}
 
 	public String getDayHighAmountAsString() {
-		// System.out.println("Day High Amount: " + dayHighAmount);
-
 		if (dayHighAmount == null) {
 			return null;
 		} else {
@@ -118,9 +117,10 @@ public class StockQuoteHistoryBO {
 		} else {
 			float floatValue = lastTradeAmount.floatValue();
 			floatValue = Math.round(floatValue * 100);
-			floatValue *= 100;
-			
-			DecimalFormat df = new DecimalFormat();
+			floatValue /= 100;
+
+			String pattern = "###.##";
+			DecimalFormat df = new DecimalFormat(pattern );
 			df.setMaximumFractionDigits(2);
 			return (df.format(floatValue));
 		}
@@ -131,7 +131,8 @@ public class StockQuoteHistoryBO {
 	}
 
 	public java.sql.Timestamp getLastTradeSqlDateTime() {
-		java.sql.Timestamp sqlDate = new java.sql.Timestamp(lastTradeDateTime.getTime());
+		java.sql.Timestamp sqlDate = new java.sql.Timestamp(
+				lastTradeDateTime.getTime());
 		return sqlDate;
 	}
 
@@ -202,13 +203,15 @@ public class StockQuoteHistoryBO {
 	}
 
 	public void setChangePercent(BigDecimal changePercent) {
-		System.out.println("New Change Percent: " + changePercent);
+		logger.trace("ticker: " + this.getTickerId() + ", new change percent: "
+				+ changePercent);
 
 		this.changePercent = changePercent;
 	}
 
 	public void setChangePercent(String changePercent) {
-		System.out.println("New Change Percent: " + changePercent);
+		logger.debug("ticker: " + this.getTickerId() + "New Change Percent: "
+				+ changePercent);
 
 		if (changePercent != null) {
 			String number = "";
@@ -256,12 +259,14 @@ public class StockQuoteHistoryBO {
 	}
 
 	public void setLastTradeAmount(BigDecimal lastTradeAmount) {
-		
+
 		this.lastTradeAmount = lastTradeAmount;
 	}
 
 	public void setLastTradeAmount(String lastTradeAmount) {
-		java.math.BigDecimal temp = new java.math.BigDecimal(lastTradeAmount);
+		String tempAmount = lastTradeAmount.trim();
+		
+		java.math.BigDecimal temp = new java.math.BigDecimal(tempAmount);
 		this.lastTradeAmount = temp;
 	}
 
@@ -269,19 +274,21 @@ public class StockQuoteHistoryBO {
 		this.lastTradeDateTime = calDateTime.getTime();
 	}
 
-	public void setLastTradeDateTime(String dateTime, SimpleDateFormat format) throws Exception {
+	public void setLastTradeDateTime(String dateTime, SimpleDateFormat format)
+			throws Exception {
 		Date date = null;
 		Calendar cal = Calendar.getInstance();
-		
+
 		try {
 			cal.setTime(format.parse(dateTime));
-			
-			
+
 			date = new Date(cal.getTimeInMillis());
-		}
-		catch (Exception e) {
-			String message = "Unable to parse date time: " + dateTime + " using format: " + format;
-			System.out.println(message);
+		} catch (Exception e) {
+			String message = "Unable to parse date/time for ticker: "
+					+ this.getTickerId() + ", date/time: " + dateTime
+					+ " using format: " + format.toString();
+			logger.error(message);
+
 			throw new Exception(message);
 		}
 
@@ -314,7 +321,8 @@ public class StockQuoteHistoryBO {
 	}
 
 	public void setQuoteDate(String dateTime, SimpleDateFormat format) {
-		java.util.Calendar temp = StringUtils.dateString2Calendar(dateTime, format);
+		java.util.Calendar temp = StringUtils.dateString2Calendar(dateTime,
+				format);
 		Date date = new Date(temp.getTimeInMillis());
 
 		this.quoteDate = date;
@@ -344,30 +352,45 @@ public class StockQuoteHistoryBO {
 
 		StringUtils.appendHeader(out, "StockQuoteHistoryBo", "");
 		StringUtils.appendNameValue(out, "ID", id, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Ticker Symbol Id", "" + tickerId, StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Ticker Symbol Id", "" + tickerId,
+				StringUtils.INDENT);
 
 		SimpleDateFormat quoteDateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 		if (quoteDate != null) {
-			StringUtils.appendNameValue(out, "Quote Date", quoteDateFormat.format(quoteDate), StringUtils.INDENT);
+			StringUtils.appendNameValue(out, "Quote Date",
+					quoteDateFormat.format(quoteDate), StringUtils.INDENT);
 		} else {
-			StringUtils.appendNameValue(out, "Quote Date", "null", StringUtils.INDENT);
+			StringUtils.appendNameValue(out, "Quote Date", "null",
+					StringUtils.INDENT);
 		}
 		out.append(StringUtils.LINE_FEED);
-		StringUtils.appendNameValue(out, "Last Trade Amount", lastTradeAmount, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Last Trade Date Time", lastTradeDateTime, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Change Amount", changeAmount, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Open Amount", openAmount, StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Last Trade Amount", lastTradeAmount,
+				StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Last Trade Date Time",
+				lastTradeDateTime, StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Change Amount", changeAmount,
+				StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Open Amount", openAmount,
+				StringUtils.INDENT);
 		out.append(StringUtils.LINE_FEED);
-		StringUtils.appendNameValue(out, "Day High Amount", dayHighAmount, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Day Low Amount", dayLowAmount, StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Day High Amount", dayHighAmount,
+				StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Day Low Amount", dayLowAmount,
+				StringUtils.INDENT);
 		StringUtils.appendNameValue(out, "Volume", volume, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Previous Close", previousClose, StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Previous Close", previousClose,
+				StringUtils.INDENT);
 		out.append(StringUtils.LINE_FEED);
-		StringUtils.appendNameValue(out, "Change Percent", changePercent, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Fifty Two Week Range", fiftyTwoWeekRange, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Earnings Per Share", earningsPerShare, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Price Per Earnings", pricePerEarnings, StringUtils.INDENT);
-		StringUtils.appendNameValue(out, "Daily Volume", dailyVolume, StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Change Percent", changePercent,
+				StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Fifty Two Week Range",
+				fiftyTwoWeekRange, StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Earnings Per Share",
+				earningsPerShare, StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Price Per Earnings",
+				pricePerEarnings, StringUtils.INDENT);
+		StringUtils.appendNameValue(out, "Daily Volume", dailyVolume,
+				StringUtils.INDENT);
 
 		return out.toString();
 	}

@@ -5,25 +5,28 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-import au.com.bytecode.opencsv.CSVReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.coolisland.trackmystocks.database.StockQuoteHistoryBO;
+import com.coolisland.trackmystocks.utils.StringUtils;
+
+import au.com.bytecode.opencsv.CSVReader;
 //import com.coolisland.trackmystocks.utils.QuoteData;
 
 public class ParseYahooCsvFileQuotes {
+	private static final Logger logger = LoggerFactory.getLogger(StockQuoteHistoryBO.class);
+
 	private static final String YAHOO_DATE_FORMAT = "yyyy-MM-dd";
-	// private String[] columnTitles = null;
-	private String csvFileName = null;
 	private CSVReader reader = null;
 	private int row = 0;
 
 	public ParseYahooCsvFileQuotes(String fileName) {
 		if (org.apache.commons.lang3.StringUtils.isEmpty(fileName)) {
-			System.out.println("ERROR: File name is empty");
+			logger.error("ERROR: File name is empty");
 			return;
 		}
 
-		csvFileName = fileName;
 		getColumnTitles(fileName);
 	}
 
@@ -31,7 +34,7 @@ public class ParseYahooCsvFileQuotes {
 		try {
 			reader = new CSVReader(new FileReader(fileName));
 		} catch (FileNotFoundException e) {
-			System.out.println("ERROR: unable to open file: " + fileName);
+			logger.error("ERROR: unable to open file: " + fileName);
 			e.printStackTrace();
 		}
 
@@ -57,7 +60,7 @@ public class ParseYahooCsvFileQuotes {
 
 	public int parseHistoricalFile(String fileName) {
 		if (org.apache.commons.lang3.StringUtils.isEmpty(fileName)) {
-			System.out.println("ERROR: File name is empty");
+			logger.error("ERROR: File name is empty");
 			return row;
 		}
 
@@ -83,47 +86,47 @@ public class ParseYahooCsvFileQuotes {
 		return row;
 	}
 
-//	public void mapCsvTo(QuoteData quoteDataBean) {
-//		if (quoteDataBean == null) {
-//			return;
-//		}
-//
-//		ColumnPositionMappingStrategy strat = new ColumnPositionMappingStrategy();
-//
-//		strat.setType(quoteDataBean.getClass());
-//
-//		// the fields to bind to in your JavaBean
-//		String[] columns = quoteDataBean.getColumnNamesForYahoo();
-//
-//		strat.setColumnMapping(columns);
-//
-//		CsvToBean csv = new CsvToBean();
-//
-//		try {
-//			reader = new CSVReader(new FileReader(csvFileName));
-//		} catch (FileNotFoundException e) {
-//			System.out.println("ERROR: unable to open file: " + csvFileName);
-//			e.printStackTrace();
-//		}
-//
-//		List list = csv.parse(strat, reader);
-//
-//		for (int ndx = 0; ndx < list.size(); ndx++) {
-//			Object o = list.get(ndx);
-//			System.out.println("Class: " + o.getClass());
-//		}
-//
-//		// close the reader
-//		try {
-//			reader.close();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
+	// public void mapCsvTo(QuoteData quoteDataBean) {
+	// if (quoteDataBean == null) {
+	// return;
+	// }
+	//
+	// ColumnPositionMappingStrategy strat = new
+	// ColumnPositionMappingStrategy();
+	//
+	// strat.setType(quoteDataBean.getClass());
+	//
+	// // the fields to bind to in your JavaBean
+	// String[] columns = quoteDataBean.getColumnNamesForYahoo();
+	//
+	// strat.setColumnMapping(columns);
+	//
+	// CsvToBean csv = new CsvToBean();
+	//
+	// try {
+	// reader = new CSVReader(new FileReader(csvFileName));
+	// } catch (FileNotFoundException e) {
+	// System.out.println("ERROR: unable to open file: " + csvFileName);
+	// e.printStackTrace();
+	// }
+	//
+	// List list = csv.parse(strat, reader);
+	//
+	// for (int ndx = 0; ndx < list.size(); ndx++) {
+	// Object o = list.get(ndx);
+	// System.out.println("Class: " + o.getClass());
+	// }
+	//
+	// // close the reader
+	// try {
+	// reader.close();
+	// } catch (IOException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// }
 
-	public boolean getNextCsvRow(StockQuoteHistoryBO quoteDataBean)
-			throws Exception {
+	public boolean getNextCsvRow(StockQuoteHistoryBO quoteDataBean) throws Exception {
 		if (quoteDataBean == null) {
 			quoteDataBean = new StockQuoteHistoryBO();
 		}
@@ -139,25 +142,31 @@ public class ParseYahooCsvFileQuotes {
 
 			// header line with column header
 			if (nextLine == null) {
-				System.out.println("no more data");
+				logger.info("no more data");
 			}
-			
+
 			if (nextLine != null && "DATE".compareToIgnoreCase(nextLine[0]) == 0) {
 				nextLine = reader.readNext();
 			}
-			
+
 			if (nextLine != null) {
 				row++;
 
-				// 3-Jan-11
-				quoteDataBean.setLastTradeDateTime(nextLine[0],
-						new SimpleDateFormat(YAHOO_DATE_FORMAT));
-				quoteDataBean.setQuoteDate(nextLine[0], new SimpleDateFormat(
-						YAHOO_DATE_FORMAT));
-				quoteDataBean.setOpenAmount(nextLine[1]);
-				quoteDataBean.setDayHighAmount(nextLine[2]);
-				quoteDataBean.setDayLowAmount(nextLine[3]);
-				quoteDataBean.setLastTradeAmount(nextLine[4]);
+				quoteDataBean.setLastTradeDateTime(nextLine[0], new SimpleDateFormat(YAHOO_DATE_FORMAT));
+				quoteDataBean.setQuoteDate(nextLine[0], new SimpleDateFormat(YAHOO_DATE_FORMAT));
+				
+				String strAmount = StringUtils.convertToNumber(nextLine[1], 2);
+				quoteDataBean.setOpenAmount(strAmount);
+				
+				strAmount = StringUtils.convertToNumber(nextLine[2], 2);
+				quoteDataBean.setDayHighAmount(strAmount);
+				
+				strAmount = StringUtils.convertToNumber(nextLine[3], 2);
+				quoteDataBean.setDayLowAmount(strAmount);
+				
+				strAmount = StringUtils.convertToNumber(nextLine[4], 2);
+				quoteDataBean.setLastTradeAmount(strAmount);
+				
 				quoteDataBean.setVolume(nextLine[5]);
 			} else {
 				return false;
