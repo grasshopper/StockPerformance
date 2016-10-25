@@ -320,7 +320,7 @@ public class StockQuoteHistoryBO {
 		this.quoteDate = quoteDate;
 	}
 
-	public void setQuoteDate(String dateTime, SimpleDateFormat format) {
+	public void setQuoteDate(String dateTime, SimpleDateFormat format) throws Exception {
 		java.util.Calendar temp = StringUtils.dateString2Calendar(dateTime,
 				format);
 		Date date = new Date(temp.getTimeInMillis());

@@ -3,6 +3,7 @@
  */
 package com.coolisland.trackmystocks.stockquotes;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -16,6 +17,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.coolisland.CreateAccount;
 import com.coolisland.CreateStock;
@@ -25,13 +28,19 @@ import com.coolisland.trackmystocks.database.StockBO;
 import com.coolisland.trackmystocks.database.StockDao;
 import com.coolisland.trackmystocks.database.StockQuoteHistoryBO;
 import com.coolisland.trackmystocks.database.StockQuoteHistoryDao;
+import com.coolisland.trackmystocks.utils.AccountUtilities;
+import com.coolisland.trackmystocks.utils.LogUtilities;
+import com.coolisland.trackmystocks.utils.StockUtilities;
 import com.coolisland.trackmystocks.yahoo.PopulateHistoricalPrices;
+
+import sun.util.logging.resources.logging;
 
 /**
  * @author Silvio
  *
  */
 public class FindMovingAverageCrossedUp {
+	private static final Logger logger = LoggerFactory.getLogger(FindMovingAverageCrossedUp.class);
 
 	private static final long MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
 	private static final int NUM_DAYS_IN_PERIOD = 50;
@@ -51,6 +60,8 @@ public class FindMovingAverageCrossedUp {
 	public static void tearDownAfterClass() throws Exception {
 	}
 
+	private int historyRecordsAdded = 0;;
+
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -67,6 +78,7 @@ public class FindMovingAverageCrossedUp {
 		StockBO stock = null;
 		StockQuoteHistoryDao historyDao = null;
 		AccountDao actDao = new AccountDao();
+		int recordsDeleted = 0;
 		
 		// fetch the test stock
 		try {
@@ -74,7 +86,7 @@ public class FindMovingAverageCrossedUp {
 			
 			stock  = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 		}
 		
 		if (stock != null) {
@@ -84,17 +96,19 @@ public class FindMovingAverageCrossedUp {
 			try {
 				historyDao = new StockQuoteHistoryDao();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				LogUtilities.logException(e);
 			}
 			
 			try {
-				historyDao.deleletStockPriceHistory(stock.getId());
+				recordsDeleted = historyDao.deleletStockPriceHistory(stock.getId());
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				LogUtilities.logException(e1);
 				
 				fail("Failed to clean up stock prices");
 			}
+			
+			assertEquals("We should have deleted " + historyRecordsAdded + " history records", historyRecordsAdded,
+					recordsDeleted);
 			
 			/*
 			 * delete stock
@@ -104,13 +118,13 @@ public class FindMovingAverageCrossedUp {
 				
 				stock  = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
 			} catch (SQLException e) {
-				e.printStackTrace();
+				LogUtilities.logException(e);
 			}
 			
 			try {
 				stockDao.deleteStock(stock);
 			} catch (SQLException e) {
-				e.printStackTrace();
+				LogUtilities.logException(e);
 			}
 		}
 		
@@ -118,9 +132,13 @@ public class FindMovingAverageCrossedUp {
 		 * delete the account
 		 */
 		AccountBO testAccount = actDao.getAccount(CreateAccount.TEST_ACCOUNT_NAME);
+		int accountsDeleted = 0;
 		if (testAccount != null) {
-			actDao.deleteAccount(testAccount);
+			accountsDeleted = actDao.deleteAccount(testAccount);
 		}
+		
+		// verify that we deleted 1 account
+		assertEquals("Expected to delete 1 account", 1, accountsDeleted);
 	}
 
 	
@@ -153,6 +171,9 @@ public class FindMovingAverageCrossedUp {
 		Date startPriceDate = prices.getHistoryStartDate();
 		Date today = new Date();
 
+		// initialize number of historical records added
+		historyRecordsAdded = 0;
+		
 		try {
 			pricesDao = new StockQuoteHistoryDao();
 		} catch (SQLException e) {
@@ -190,7 +211,11 @@ public class FindMovingAverageCrossedUp {
 				quote.getLastTradeAmount();
 
 				try {
-					pricesDao.addTickerHistory(quote);
+					boolean retVal = pricesDao.addTickerHistory(quote);
+					
+					if (retVal) {
+						historyRecordsAdded++;
+					}
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -230,9 +255,18 @@ public class FindMovingAverageCrossedUp {
 		try {
 			stock = addStockToAccount(account);
 		} catch (Exception e) {
-			e.printStackTrace();
-			
-			fail("Failed to add stock to account");
+			try {
+				if (StockUtilities.stockExistsInAccount(account, stock)) {
+					logger.warn("Stock " + stock.getSymbol() + " already exits on account " + account.getName());
+				}
+				else {
+					LogUtilities.logException(e);
+					fail("Failed to add stock " + stock.getSymbol() + " to account " + account.getName());
+				}
+			} catch (SQLException e1) {
+				LogUtilities.logException(e);
+				fail("Failed to add stock " + stock.getSymbol() + " to account " + account.getName());
+			}
 		}
 		
 		addHistoricalPricesToStock(stock);

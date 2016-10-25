@@ -14,7 +14,7 @@ import com.coolisland.trackmystocks.database.StockQuoteHistoryDao;
 import com.coolisland.trackmystocks.utils.StringUtils;
 
 public class PopulateHistoricalPrices {
-	private static final Logger logger = LoggerFactory.getLogger(StockQuoteHistoryDao.class);
+	private static final Logger logger = LoggerFactory.getLogger(PopulateHistoricalPrices.class);
 
 	public java.util.Date getHistoryStartDate() {
 		Calendar cal = Calendar.getInstance();
@@ -38,7 +38,7 @@ public class PopulateHistoricalPrices {
 	 * @return
 	 * @throws Exception
 	 */
-	private Calendar getStartDateForTicker(Long tickerId) throws Exception {
+	public Calendar getStartDateForTicker(Long tickerId) throws Exception {
 
 		Calendar nextQuoteDate = null;
 		boolean firstTimeQuote = false;
@@ -110,7 +110,9 @@ public class PopulateHistoricalPrices {
 
 			List<StockBO> listTickerBo = tickers.getStockTickersToTrack();
 			for (StockBO tickerBo : listTickerBo) {
-				// System.out.println("Stock name: " + tickerBo.getName());
+				logger.debug("Stock name: " + tickerBo.getName());
+				logger.isDebugEnabled();
+				logger.getName();
 
 				int daysProcessed = populateStockHistory(tickerBo.getId(), tickerBo.getSymbol(), tickerBo.getName());
 
@@ -190,7 +192,7 @@ public class PopulateHistoricalPrices {
 						historyDao.addTickerHistory(quoteDataBean);
 						daysProcessed++;
 					}
-					logger.debug(" Processed " + daysProcessed + " days");
+//					logger.debug(" Processed " + daysProcessed + " days");
 				} catch (Exception e) {
 					logger.error("An error occurred processing historical prices");
 					logger.error("Last quote date in DB: " + fromMonth + "/" + fromDay + "/" + fromYear);
@@ -207,9 +209,9 @@ public class PopulateHistoricalPrices {
 			e2.printStackTrace();
 		}
 
-		if (daysProcessed > 0) {
-			logger.debug("Processed " + daysProcessed + " days of of data");
-		}
+//		if (daysProcessed > 0) {
+//			logger.debug("Processed " + daysProcessed + " days of of data");
+//		}
 
 		return daysProcessed;
 	}

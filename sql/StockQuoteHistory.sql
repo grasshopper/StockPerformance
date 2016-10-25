@@ -99,6 +99,27 @@ order by sqh.last_trade_date_time ;
 
 
 
+-- find ANY missing date
+SELECT sqh1.ticker_id, 
+       t.name, 
+       SQH1.QUOTE_DATE, DAYNAME(DATE_ADD(sqh1.QUOTE_DATE, interval 1 DAY)) AS MISSING_DAY_OF_WEEK,
+       (sqh1.QUOTE_DATE) + INTERVAL 1 DAY AS MISSING_DATE
+FROM   STOCK_QUOTE_HISTORY sqh1
+       LEFT OUTER JOIN STOCK_QUOTE_HISTORY sqh2 
+	     ON DATE(sqh1.QUOTE_DATE) = DATE(sqh2.QUOTE_DATE) - INTERVAL 1 DAY
+            AND sqh2.TICKER_ID = sqh1.TICKER_ID
+       LEFT OUTER JOIN TICKER t
+         ON t.ID = sqh1.TICKER_ID
+WHERE  sqh1.QUOTE_DATE BETWEEN '2010-01-01' AND current_date() 
+       AND sqh2.QUOTE_DATE IS NULL
+       AND sqh1.TICKER_ID is not null
+       AND sqh1.TICKER_ID = 1
+	   AND NOT EXISTS (SELECT * FROM bank_non_work_days days where days.DATE = DATE_ADD(sqh1.QUOTE_DATE, interval 1 DAY))
+	   AND DAYNAME( DATE_ADD(sqh1.QUOTE_DATE, interval 1 DAY) ) NOT IN ('Saturday', 'Sunday')
+ORDER BY t.name ASC, MISSING_DATE ASC;
+
+
+SELECT * FROM bank_non_work_days days where days.DATE = '2010-02-06';
 
 
 -- find two missing dates in a row
@@ -116,6 +137,7 @@ WHERE  sqh1.QUOTE_DATE BETWEEN '2010-01-01' AND current_date()
 ORDER BY t.name ASC, MISSING_DATE ASC;
 
 
+-- finds 3 days in a row missing
 SELECT SQH.QUOTE_DATE, 
 	   TIMESTAMPDIFF(DAY, SQH.QUOTE_DATE, 
        (SELECT SQH2.QUOTE_DATE
@@ -146,7 +168,7 @@ SELECT SQH.QUOTE_DATE, SQH.QUOTE_DATE + interval 1 DAY AS NEXT_DAY,
 			WHERE  SQH2.QUOTE_DATE > SQH.QUOTE_DATE
 				   AND SQH2.TICKER_ID = SQH.TICKER_ID
 			ORDER BY SQH2.QUOTE_DATE ASC
-			LIMIT 1)) - 1 AS DAYS_MISSING_DATA
+			LIMIT 1)) - 2 AS DAYS_MISSING_DATA
 FROM   stock_quote_history SQH
 WHERE  SQH.TICKER_ID = 1
 	   AND SQH.QUOTE_DATE + interval 1 DAY < (SELECT SQH1.QUOTE_DATE 
@@ -155,6 +177,7 @@ WHERE  SQH.TICKER_ID = 1
 													 AND SQH1.TICKER_ID = SQH.TICKER_ID
 											  ORDER BY SQH1.QUOTE_DATE ASC
 											  LIMIT 1)
+HAVING DAYS_MISSING_DATA > 2
 ORDER BY SQH.QUOTE_DATE;
 
 

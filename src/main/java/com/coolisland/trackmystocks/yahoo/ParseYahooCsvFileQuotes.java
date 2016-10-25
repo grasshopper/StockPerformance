@@ -15,7 +15,7 @@ import au.com.bytecode.opencsv.CSVReader;
 //import com.coolisland.trackmystocks.utils.QuoteData;
 
 public class ParseYahooCsvFileQuotes {
-	private static final Logger logger = LoggerFactory.getLogger(StockQuoteHistoryBO.class);
+	private static final Logger logger = LoggerFactory.getLogger(ParseYahooCsvFileQuotes.class);
 
 	private static final String YAHOO_DATE_FORMAT = "yyyy-MM-dd";
 	private CSVReader reader = null;
@@ -142,7 +142,7 @@ public class ParseYahooCsvFileQuotes {
 
 			// header line with column header
 			if (nextLine == null) {
-				logger.info("no more data");
+				logger.trace("no more data");
 			}
 
 			if (nextLine != null && "DATE".compareToIgnoreCase(nextLine[0]) == 0) {

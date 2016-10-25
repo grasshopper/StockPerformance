@@ -19,6 +19,7 @@ import com.coolisland.trackmystocks.database.AccountBO;
 import com.coolisland.trackmystocks.database.AccountDao;
 import com.coolisland.trackmystocks.database.StockBO;
 import com.coolisland.trackmystocks.database.StockDao;
+import com.coolisland.trackmystocks.utils.AccountUtilities;
 
 
 
@@ -69,7 +70,7 @@ public class FindAllStocksRecentlyCrossedUp {
 	
 	@Test
 	public void findRecentMovingAverageCrossedUp() {
-		Collection<AccountBO> accounts = getAllAccounts();
+		Collection<AccountBO> accounts = AccountUtilities.getAllPrimaryAccounts();
 
 		assertNotNull("No Primary Accounts Found", accounts);
 		assertTrue("No Primary Accounts Found", accounts.size() > 0);
@@ -92,18 +93,6 @@ public class FindAllStocksRecentlyCrossedUp {
 
 	}
 
-	private List<AccountBO> getAllAccounts() {
-		AccountDao dao = new AccountDao();
-		
-		List<AccountBO> accounts = new ArrayList<AccountBO>();
-		try {
-			accounts = dao.getPrimaryAccounts();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-		return accounts;
-	}
 
 }

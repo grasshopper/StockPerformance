@@ -40,7 +40,7 @@ public class AccountDao {
 			allAccounts = accountDao.getAllAccounts();
 
 			for (AccountBO account : allAccounts) {
-				System.out.println(account.toString());
+				logger.debug(account.toString());
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -56,8 +56,8 @@ public class AccountDao {
 	 */
 	public AccountBO getAccount(String actName) throws SQLException {
 		String method = "getAccount";
-		System.out.println("Starting " + method);
-		System.out.println("actName: " + actName);
+		logger.debug("Starting " + method);
+		logger.debug("actName: " + actName);
 
 		AccountBO account = null;
 
@@ -70,7 +70,7 @@ public class AccountDao {
 		// Set the values
 		pstmt.setString(1, actName);
 
-//		System.out.println("SQL statement: " + pstmt.toString());
+//		logger.debug("SQL statement: " + pstmt.toString());
 
 		result = pstmt.executeQuery();
 
@@ -121,8 +121,8 @@ public class AccountDao {
 
 	public boolean createAccount(AccountBO newAccount) throws SQLException {
 		String method = "createAccount";
-		System.out.println("Starting " + method);
-		System.out.println("New Account: " + newAccount);
+		logger.debug("Starting " + method);
+		logger.debug("New Account: " + newAccount);
 
 		String sql = CREATE_ACCOUNT_STATMENT;
 		boolean result = false;
@@ -135,11 +135,11 @@ public class AccountDao {
 		pstmt.setString(2, newAccount.getName());
 		pstmt.setBigDecimal(3, newAccount.getParentId());
 
-//		System.out.println("SQL statement: " + pstmt.toString());
+//		logger.debug("SQL statement: " + pstmt.toString());
 
 		int recInserted = dbManager.executeInsert(pstmt);
 
-		System.out.println("records inserted: " + recInserted);
+		logger.debug("records inserted: " + recInserted);
 
 		if (recInserted != 1) {
 			result = false;
@@ -150,10 +150,10 @@ public class AccountDao {
 		return result;
 	}
 
-	public boolean deleteAccount(AccountBO newAccount) throws SQLException {
+	public int deleteAccount(AccountBO newAccount) throws SQLException {
 		String method = "deleteAccount";
-		System.out.println("Starting " + method);
-		System.out.println("Account to delete: " + newAccount);
+		logger.debug("Starting " + method);
+		logger.debug("Account to delete: " + newAccount);
 
 		String sql = DELETE_ACCOUNT_STATMENT;
 
@@ -163,31 +163,31 @@ public class AccountDao {
 		// Set the values
 		pstmt.setLong(1, newAccount.getId());
 
-//		System.out.println("SQL statement: " + pstmt.toString());
+//		logger.debug("SQL statement: " + pstmt.toString());
 
 		boolean result = pstmt.execute();
 
-		System.out.println("result: " + result);
+		logger.debug("result: " + result);
 		
 		if (result == false) {
 			SQLWarning warnings = pstmt.getWarnings();
 			warnings = DataBaseManager.getInstance().getConnection().getWarnings();
 			
 			if (warnings != null) {
-				System.out.println("Warnings: " + warnings);
-				System.out.println(pstmt.toString());
+				logger.debug("Warnings: " + warnings);
+				logger.debug(pstmt.toString());
 			}
 			
-			System.out.println("Rows updated: " + pstmt.getUpdateCount());
+			logger.debug("Rows updated: " + pstmt.getUpdateCount());
 		}
 
-		return result;
+		return pstmt.getUpdateCount();
 	}
 
 	public String getAccountName(Long accountId) throws SQLException {
 //		String method = "getAccountName";
-//		System.out.println("Starting " + method);
-//		System.out.println("Account ID: " + accountId);
+//		logger.debug("Starting " + method);
+//		logger.debug("Account ID: " + accountId);
 
 		AccountBO account = null;
 
@@ -200,7 +200,7 @@ public class AccountDao {
 		// Set the values
 		pstmt.setLong(1, accountId);
 
-//		System.out.println("SQL statement: " + pstmt.toString());
+//		logger.debug("SQL statement: " + pstmt.toString());
 
 		result = pstmt.executeQuery();
 

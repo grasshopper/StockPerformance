@@ -159,6 +159,7 @@ public class HistoricalPricesFromYahoo {
 			}
 		}
 
+		// log values we just read
 		if (stockPrices != null) {
 			int size = stockPrices.size();
 			for (int index = 0; index < size; index++) {
@@ -172,7 +173,33 @@ public class HistoricalPricesFromYahoo {
 			}
 		}
 
+		if (!containsPrices(stockPrices)) {
+			stockPrices.clear();
+		}
+		
 		return stockPrices;
+	}
+
+	
+	private final String notAvailable = "N/A";
+	private boolean containsPrices(List<String[]> stockPrices) {
+		boolean containsData = false;
+
+		// if we get back one row with N/A's then stock was not found
+		if (stockPrices != null) {
+			int rows = stockPrices.size();
+			if (rows == 1) {
+					String[] stockStrArray = stockPrices.get(0);
+					for (String stockStr : stockStrArray) {
+						if (!notAvailable.equalsIgnoreCase(stockStr)){
+							containsData = true;
+							break;
+						}
+					}
+			}
+		}
+
+		return containsData;
 	}
 
 	/**
@@ -203,7 +230,7 @@ public class HistoricalPricesFromYahoo {
 
 		fullUrl += "&" + fileTypeParam;
 
-		logger.info("URL: " + fullUrl);
+		logger.debug("URL: " + fullUrl);
 
 		FileWriter writer = null;
 		try {

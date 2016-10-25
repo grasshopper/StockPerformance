@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import com.coolisland.trackmystocks.database.AccountBO;
 import com.coolisland.trackmystocks.database.AccountDao;
+import com.coolisland.trackmystocks.utils.DeleteAccount;
 
 /**
  * @author Silvio

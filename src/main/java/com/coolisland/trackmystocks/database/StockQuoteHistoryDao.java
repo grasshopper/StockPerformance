@@ -27,7 +27,7 @@ public class StockQuoteHistoryDao {
 			+ "VOLUME, PREVIOUS_CLOSE, CHANGE_PERCENT, FIFTY_TWO_WEEK_RANGE, EARNING_PER_SHARE, "
 			+ "PRICE_PER_EARNINGS, AVERAGE_DAILY_VOLUME) ";
 
-	private static final String DELETE_STOCK_HISTORY = "delete from stock_quote_history " + " where TICKER_ID - ?";
+	private static final String DELETE_STOCK_HISTORY = "delete from stock_quote_history " + " where TICKER_ID = ?";
 
 	private static final String SELECT_SIMPLE_200_DAY_AVG = "SELECT SUM(LAST_TRADE_AMOUNT) / 200 "
 			+ "FROM (SELECT LAST_TRADE_AMOUNT FROM STOCK_QUOTE_HISTORY WHERE TICKER_ID = ? "
@@ -53,6 +53,26 @@ public class StockQuoteHistoryDao {
 	private static final String WHERE_LAST_CLOSE_STATEMENT = "WHERE TICKER_ID = ";
 
 	private static String INSERT_ALL_VALUES = "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	
+	private static String FIND_MISSING_QUOTE_DAYS = "SELECT sqh1.ticker_id, "
+			+ " t.name,  "
+			+ " SQH1.QUOTE_DATE, DAYNAME(DATE_ADD(sqh1.QUOTE_DATE, interval 1 DAY)) AS MISSING_DAY_OF_WEEK,(sqh1.QUOTE_DATE)+INTERVAL 1 DAY AS "
+			+ " MISSING_DATE "
+			+ " FROM "
+			+ "      STOCK_QUOTE_HISTORY sqh1 "
+			+ "      LEFT OUTER JOIN STOCK_QUOTE_HISTORY sqh2 "
+			+ "        ON DATE(sqh1.QUOTE_DATE) = DATE(sqh2.QUOTE_DATE) - INTERVAL 1 DAY "
+			+ "           AND sqh2.TICKER_ID = sqh1.TICKER_ID "
+			+ "      LEFT OUTER JOIN TICKER t "
+			+ "        ON t.ID = sqh1.TICKER_ID "
+			// need to set date
+			+ " WHERE  sqh1.QUOTE_DATE BETWEEN '2010-01-01' AND current_date() " 
+			+ "        AND sqh2.QUOTE_DATE IS NULL "
+			// need to pass in tiecker id
+			+ "        AND sqh1.TICKER_ID = 1 "
+			+ "        AND NOT EXISTS (SELECT * FROM bank_non_work_days days where days.DATE = DATE_ADD(sqh1.QUOTE_DATE, interval 1 DAY))"
+			+ "        AND DAYNAME( DATE_ADD(sqh1.QUOTE_DATE, interval 1 DAY) ) NOT IN ('Saturday', 'Sunday') "
+			+ " ORDER BY t.name ASC, MISSING_DATE ASC";
 
 	private final DataBaseManager dbManager = DataBaseManager.getInstance();
 
@@ -247,7 +267,7 @@ public class StockQuoteHistoryDao {
 	}
 
 
-	public void deleletStockPriceHistory(Long tickerId) throws SQLException {
+	public int deleletStockPriceHistory(Long tickerId) throws SQLException {
 		String method = "deleletStockPriceHistory";
 		
 		String sql = DELETE_STOCK_HISTORY;
@@ -257,7 +277,7 @@ public class StockQuoteHistoryDao {
 		// Set the values
 		pstmt.setLong(1, tickerId);
 
-		logger.trace("SQL statement: " + pstmt.toString());
+		logger.debug("SQL statement: " + pstmt.toString());
 
 		boolean result = pstmt.execute();
 
@@ -274,6 +294,11 @@ public class StockQuoteHistoryDao {
 
 			logger.debug("Rows deleted: " + pstmt.getUpdateCount());
 		}
+		
+		int recordsDeleted = pstmt.getUpdateCount();
+		logger.debug(method + ": deleted " + recordsDeleted + " records");
+
+		return recordsDeleted;
 	}
 
 

@@ -5,15 +5,22 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.coolisland.trackmystocks.beans.PriceBean;
 import com.coolisland.trackmystocks.database.AccountDao;
 import com.coolisland.trackmystocks.database.StockBO;
 import com.coolisland.trackmystocks.database.StockDao;
 import com.coolisland.trackmystocks.database.StockQuoteHistoryDao;
+import com.coolisland.trackmystocks.utils.MovingAveragesTester;
+import com.coolisland.trackmystocks.utils.QuoteHistoryUtilities;
 import com.coolisland.trackmystocks.utils.StringUtils;
 
 public class MovingAverages {
 	private static final long MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
+
+	private static final Logger logger = LoggerFactory.getLogger(MovingAverages.class);
 
 	private static final int ROWS_PER_PAGE = 15;
 	private int rowsPrinted = 0;
@@ -247,12 +254,7 @@ public class MovingAverages {
 		/*
 		 * how many days of prices do we have?
 		 */
-		int numHistoricalDays = 0;
-		try {
-			numHistoricalDays = historyDao.getNumberOfDays(tickerId);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		int numHistoricalDays = QuoteHistoryUtilities.getNumberOfHistoricalPrices(tickerId);
 //		System.out.println("Number of days with prices: " + numHistoricalDays);
 		
 		/*
@@ -335,12 +337,7 @@ public class MovingAverages {
 		/*
 		 * how many days of prices do we have?
 		 */
-		int numHistoricalDays = 0;
-		try {
-			numHistoricalDays = historyDao.getNumberOfDays(tickerId);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		int numHistoricalDays = QuoteHistoryUtilities.getNumberOfHistoricalPrices(tickerId);
 //		System.out.println("Number of days with prices: " + numHistoricalDays);
 		
 		/*
@@ -435,6 +432,9 @@ public class MovingAverages {
 			historyDao = new StockQuoteHistoryDao();
 
 			prices = historyDao.getClosingPrices(tickerId, days);
+			
+			logger.debug("Closing prices for tickerID: " + tickerId + " with " + days);
+			logger.debug(prices.toString());
 
 			for (int day = 0; day < numberDaysBack; day++) {
 				Double movingAvg = average(prices, day, day + TWO_HUNDRED_DAY_MOVING_AVG + 1);

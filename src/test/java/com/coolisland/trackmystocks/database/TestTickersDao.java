@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.coolisland.trackmystock.database;
+package com.coolisland.trackmystocks.database;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

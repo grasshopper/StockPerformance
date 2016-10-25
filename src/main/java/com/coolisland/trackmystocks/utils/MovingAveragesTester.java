@@ -1,4 +1,4 @@
-package com.coolisland.trackmystocks.stockquotes;
+package com.coolisland.trackmystocks.utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -28,20 +28,23 @@ import com.coolisland.trackmystocks.database.StockBO;
 import com.coolisland.trackmystocks.database.StockDao;
 import com.coolisland.trackmystocks.database.StockQuoteHistoryBO;
 import com.coolisland.trackmystocks.database.StockQuoteHistoryDao;
-import com.coolisland.trackmystocks.utils.StringUtils;
+import com.coolisland.trackmystocks.database.StockQuoteHistoryDao;
 import com.coolisland.trackmystocks.yahoo.PopulateHistoricalPrices;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 public class MovingAveragesTester {
-
 	private static final Logger logger = LoggerFactory.getLogger(MovingAveragesTester.class);
 
 	private static final long MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
 
-	private int addMicrosoftRealPricesAsHistoricalPrices(StockQuoteHistoryDao pricesDao, StockBO stock) {
-		final String msftHistoricalPricesFile = new String(
-				"C:\\Development\\workspaces\\workspace-sts\\TrackMyStockWithoutSpring\\src\\test\\java\\com\\coolisland\\trackmystocks\\stockquotes\\MicrosoftHistoricalPrices.txt");
+	private int numRecordsPopulated = 0;
+
+	private int addMicrosoftRealPricesAsHistoricalPrices(StockQuoteHistoryDao pricesDao, StockBO stock) throws Exception {
+		
+//		final String msftHistoricalPricesFile = new String(
+//				"C:\\Development\\workspaces\\workspace-sts\\TrackMyStockWithoutSpring\\src\\test\\java\\com\\coolisland\\trackmystocks\\stockquotes\\MicrosoftHistoricalPrices.txt");
+		final String msftHistoricalPricesFile = new String("src\\test\\java\\com\\coolisland\\trackmystocks\\stockquotes\\MicrosoftHistoricalPrices.txt");
 		final String DATE_FORMAT = "yyyy-MM-dd";
 		CSVReader reader = null;
 		int row = 0;
@@ -50,7 +53,7 @@ public class MovingAveragesTester {
 			reader = new CSVReader(new FileReader(msftHistoricalPricesFile));
 		} catch (FileNotFoundException e) {
 			logger.error("ERROR: unable to open file: " + msftHistoricalPricesFile);
-			e.printStackTrace();
+			LogUtilities.logException(e);
 		}
 
 		StockQuoteHistoryBO quoteDataBean = new StockQuoteHistoryBO();
@@ -94,7 +97,7 @@ public class MovingAveragesTester {
 				nextLine = reader.readNext();
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 			fail("Failed to read price history and/or create bean");
 		}
 
@@ -119,7 +122,7 @@ public class MovingAveragesTester {
 		try {
 			stockCreator.createStock(account);
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			LogUtilities.logException(e1);
 		}
 
 		// fetch the test stock
@@ -130,7 +133,7 @@ public class MovingAveragesTester {
 
 			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 		}
 
 		if (stock == null) {
@@ -141,13 +144,13 @@ public class MovingAveragesTester {
 		try {
 			pricesDao = new StockQuoteHistoryDao();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 			fail("Unable to create StockQuoteHistoryDao");
 		}
 
 		int numberHistoricalPrices = addMicrosoftRealPricesAsHistoricalPrices(pricesDao, stock);
 
-		System.out.println("Number of prices inserted " + numberHistoricalPrices);
+		logger.debug("Number of prices inserted " + numberHistoricalPrices);
 		assertTrue("No historical prices inserted", numberHistoricalPrices > 1);
 
 		/*
@@ -157,11 +160,11 @@ public class MovingAveragesTester {
 		try {
 			movingAverage = pricesDao.get200DaySimpleMovingAverage(new BigDecimal(stock.getId()));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 			fail("Failed to get 200 day moving average");
 		}
 
-		System.out.println("200 Day Moving Average: " + movingAverage);
+		logger.debug("200 Day Moving Average: " + movingAverage);
 		
 		float truncatedMovingAverage = Math.round(movingAverage.floatValue() * 100) / 100.0f;
 		assertTrue("200 Day moving average", 49.66f == truncatedMovingAverage);
@@ -179,7 +182,7 @@ public class MovingAveragesTester {
 		try {
 			stockCreator.createStock(account);
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			LogUtilities.logException(e1);
 		}
 
 		// fetch the test stock
@@ -190,7 +193,7 @@ public class MovingAveragesTester {
 
 			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 		}
 
 		if (stock == null) {
@@ -201,7 +204,7 @@ public class MovingAveragesTester {
 		try {
 			pricesDao = new StockQuoteHistoryDao();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 			fail("Unable to create StockQuoteHistoryDao");
 		}
 
@@ -209,7 +212,7 @@ public class MovingAveragesTester {
 		float increment = 1.0f;
 		int numberHistoricalPrices = setHistoryPriceRising(pricesDao, stock, startPrice, increment);
 
-		System.out.println("Number of prices inserted " + numberHistoricalPrices);
+		logger.debug("Number of prices inserted " + numberHistoricalPrices);
 		assertTrue("No historical prices inserted", numberHistoricalPrices > 1);
 
 		/*
@@ -219,11 +222,11 @@ public class MovingAveragesTester {
 		try {
 			movingAverage = pricesDao.get200DaySimpleMovingAverage(new BigDecimal(stock.getId()));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 			fail("Failed to get 200 day moving average");
 		}
 
-		System.out.println("200 Day Moving Average: " + movingAverage);
+		logger.debug("200 Day Moving Average: " + movingAverage);
 
 		// data setup
 		List<Double> prices = new ArrayList<Double>();
@@ -255,13 +258,13 @@ public class MovingAveragesTester {
 			sumOfLast200Days = sumOfLast200Days + sumOfLast200Days + increment;
 		}
 		float expectedMovingAvg200Day = sumOfLast200Days / 200;
-		System.out.println("Expcected 200 day moving average: " + expectedMovingAvg200Day + "\n");
+		logger.debug("Expcected 200 day moving average: " + expectedMovingAvg200Day + "\n");
 		*/
 
 		assertEquals("200 Day moving average", average, movingAverage.floatValue(), 0.1f);
 	}
 
-	private void setHistoryPrice(StockQuoteHistoryDao pricesDao, StockBO stock, String priceToUse) {
+	private int setHistoryPrice(StockQuoteHistoryDao pricesDao, StockBO stock, String priceToUse) {
 		// populate the historical prices
 		PopulateHistoricalPrices prices = new PopulateHistoricalPrices();
 		StockQuoteHistoryBO quote = new StockQuoteHistoryBO();
@@ -271,6 +274,7 @@ public class MovingAveragesTester {
 		Date startPriceDate = prices.getHistoryStartDate();
 		Date today = new Date();
 		Date tomorrow = new Date(today.getTime() + MILLISECONDS_IN_DAY);
+		int daysPopulated = 0;
 
 		quote.setTickerId(stock.getId());
 		quote.setChangeAmount(zero);
@@ -293,14 +297,17 @@ public class MovingAveragesTester {
 
 			try {
 				pricesDao.addTickerHistory(quote);
-
+				daysPopulated++;
 			} catch (SQLException e) {
-				e.printStackTrace();
+				LogUtilities.logException(e);
+
 				fail("Failed to add ticker price to ticker history");
 			}
 
 			priceDate.setTime(priceDate.getTime() + MILLISECONDS_IN_DAY);
 		}
+		
+		return daysPopulated;
 	}
 
 	private int setHistoryPriceRising(StockQuoteHistoryDao pricesDao, StockBO stock, float startPrice,
@@ -341,7 +348,7 @@ public class MovingAveragesTester {
 				pricesDao.addTickerHistory(quote);
 
 			} catch (SQLException e) {
-				e.printStackTrace();
+				LogUtilities.logException(e);
 				fail("Failed to add ticker price to ticker history");
 			}
 
@@ -364,7 +371,6 @@ public class MovingAveragesTester {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		tearDown();
 	}
 
 	@Test
@@ -379,7 +385,7 @@ public class MovingAveragesTester {
 		try {
 			stockCreator.createStock(account);
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			LogUtilities.logException(e1);
 		}
 
 		// fetch the test stock
@@ -390,7 +396,7 @@ public class MovingAveragesTester {
 
 			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 		}
 
 		if (stock == null) {
@@ -401,26 +407,29 @@ public class MovingAveragesTester {
 		try {
 			pricesDao = new StockQuoteHistoryDao();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 			fail("Unable to create StockQuoteHistoryDao");
 		}
 
-		setHistoryPrice(pricesDao, stock, "10.00");
+		int pricesPopulated = setHistoryPrice(pricesDao, stock, "10.00");
+		assertTrue("No historical prices inserted for " + stock.getSymbol() + " on account " + account.getName(), pricesPopulated > 0);
 
+		
 		/*
-		 * get the average moving average
+		 * get the 200 day moving average
 		 */
 		Double movingAverage = null;
 		try {
 			movingAverage = pricesDao.get200DaySimpleMovingAverage(new BigDecimal(stock.getId()));
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 			fail("Failed to get 200 day moving average");
 		}
 
-		System.out.println("200 Day Moving Average: " + movingAverage);
+		logger.debug("200 Day Moving Average: " + movingAverage);
 	}
 
+	
 	@Test
 	public void setupPriceHistoryForNewStock() {
 		// create account
@@ -432,9 +441,10 @@ public class MovingAveragesTester {
 		try {
 			stock = stockCreator.createStock(account);
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			LogUtilities.logException(e1);
 			fail("Failed to Create Stock");
 		}
+		logger.debug("Test stock created for account " + account.getName());
 
 		// fetch the test stock
 		StockDao stockDao = null;
@@ -443,19 +453,22 @@ public class MovingAveragesTester {
 
 			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 			fail("Could find the test stock");
 		}
-		System.out.println("Test stock " + stock.getName() + " created");
+		logger.debug("Test stock " + stock.getName() + " found in account " + account.getName());
 
+		
 		// populate the historical prices
 		PopulateHistoricalPrices historicalPrices = new PopulateHistoricalPrices();
 
-		int numRecordsPopulated = historicalPrices.populateStockHistory(stock.getId(), stock.getSymbol(),
+		numRecordsPopulated = historicalPrices.populateStockHistory(stock.getId(), stock.getSymbol(),
 				stock.getName());
 
 		assertTrue("Failed to populate historical prices", numRecordsPopulated > 0);
-
+		logger.debug("" + numRecordsPopulated + " historical prices added to stock " + stock.getSymbol());
+		
+		
 		/*
 		 * clean up
 		 */
@@ -464,37 +477,47 @@ public class MovingAveragesTester {
 		try {
 			historyDao = new StockQuoteHistoryDao();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 
 			fail("Failed to get DAO");
 		}
 
+		int historyPricesDeleted = 0;
 		try {
-			historyDao.deleletStockPriceHistory(stock.getId());
+			historyPricesDeleted = historyDao.deleletStockPriceHistory(stock.getId());
 		} catch (SQLException e1) {
-			e1.printStackTrace();
+			LogUtilities.logException(e1);
 
 			fail("Failed to clean up stock prices");
 		}
+		logger.debug("Historical stock prices deleted: " + historyPricesDeleted + " historical prices added: "+ numRecordsPopulated);
 
+		
+		// Did we delete the correct number of records?
+		assertEquals("Expected to delete " + numRecordsPopulated + " history records", numRecordsPopulated, historyPricesDeleted);
+		
 		// delete stock
 		try {
 			stockDao.deleteStock(stock);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 
 			fail("Failed to clean up stock by deleting it");
 		}
 
 		// delete account
 		AccountDao accountDao = new AccountDao();
+		int accountsDeleted = 0;
 		try {
-			accountDao.deleteAccount(account);
+			accountsDeleted = accountDao.deleteAccount(account);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 
 			fail("Failed to clean up Account by deleting it");
 		}
+		
+		// verify that we deleted 1 account
+		assertEquals("Expected to delete 1 account", 1, accountsDeleted);
 	}
 
 	/**
@@ -513,7 +536,7 @@ public class MovingAveragesTester {
 
 			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			LogUtilities.logException(e);
 		}
 
 		if (stock != null) {
@@ -523,17 +546,21 @@ public class MovingAveragesTester {
 			try {
 				historyDao = new StockQuoteHistoryDao();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				LogUtilities.logException(e);
 			}
 
+			int historyRecordsDeleted = 0;
 			try {
-				historyDao.deleletStockPriceHistory(stock.getId());
+				historyRecordsDeleted = historyDao.deleletStockPriceHistory(stock.getId());
 			} catch (SQLException e1) {
-				e1.printStackTrace();
+				LogUtilities.logException(e1);
 
 				fail("Failed to clean up stock prices");
 			}
 
+//			// Did we delete the correct number of records?
+//			assertEquals("Expected to delete " + historyRecordsDeleted + " history records", numRecordsPopulated , historyRecordsDeleted);
+			
 			/*
 			 * delete stock
 			 */
@@ -542,18 +569,18 @@ public class MovingAveragesTester {
 
 				stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
 			} catch (SQLException e) {
-				e.printStackTrace();
+				LogUtilities.logException(e);
 			}
 
 			try {
 				stockDao.deleteStock(stock);
 			} catch (SQLException e) {
-				e.printStackTrace();
+				LogUtilities.logException(e);
 			}
 		}
 
 		/*
-		 * delete the account
+		 * delete the account - the account should have been deleted by the test methods
 		 */
 		AccountBO testAccount = actDao.getAccount(CreateAccount.TEST_ACCOUNT_NAME);
 		if (testAccount != null) {

@@ -20,6 +20,7 @@ import com.coolisland.trackmystocks.database.StockBO;
 import com.coolisland.trackmystocks.database.StockDao;
 import com.coolisland.trackmystocks.sellbuy.ExchangeType;
 import com.coolisland.trackmystocks.sellbuy.StockType;
+import com.coolisland.trackmystocks.utils.DeleteAccount;
 
 /**
  * @author Silvio
