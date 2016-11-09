@@ -20,8 +20,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.coolisland.CreateAccount;
-import com.coolisland.CreateStock;
+import com.coolisland.trackmystocks.CreateAccount;
 import com.coolisland.trackmystocks.database.AccountBO;
 import com.coolisland.trackmystocks.database.AccountDao;
 import com.coolisland.trackmystocks.database.StockBO;
@@ -33,10 +32,8 @@ import com.coolisland.trackmystocks.utils.LogUtilities;
 import com.coolisland.trackmystocks.utils.StockUtilities;
 import com.coolisland.trackmystocks.yahoo.PopulateHistoricalPrices;
 
-import sun.util.logging.resources.logging;
-
 /**
- * @author Silvio
+ * @author Grasshopper
  *
  */
 public class FindMovingAverageCrossedUp {
@@ -84,7 +81,7 @@ public class FindMovingAverageCrossedUp {
 		try {
 			stockDao = new StockDao();
 			
-			stock  = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
+			stock  = stockDao.getStockTickerBySymbol(StockUtilities.STOCK_SYMBOL);
 		} catch (SQLException e) {
 			LogUtilities.logException(e);
 		}
@@ -116,7 +113,7 @@ public class FindMovingAverageCrossedUp {
 			try {
 				stockDao = new StockDao();
 				
-				stock  = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
+				stock  = stockDao.getStockTickerBySymbol(StockUtilities.STOCK_SYMBOL);
 			} catch (SQLException e) {
 				LogUtilities.logException(e);
 			}
@@ -143,18 +140,14 @@ public class FindMovingAverageCrossedUp {
 
 	
 	private AccountBO createAccount() {
-		CreateStock actCreator = new CreateStock();
-		
-		AccountBO accountBo = actCreator.createAccount();
+		AccountBO accountBo = AccountUtilities.createTestAccount();
 		
 		return accountBo;
 	}
 	
 	
 	private StockBO addStockToAccount(AccountBO account) throws Exception {
-		CreateStock stockCreator = new CreateStock();
-		
-		StockBO stock = stockCreator.createStock(account);
+		StockBO stock = StockUtilities.createTestStock(account);
 		
 		return stock;
 	}

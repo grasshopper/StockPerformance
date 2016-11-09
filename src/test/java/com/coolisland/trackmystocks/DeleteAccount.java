@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.coolisland.trackmystocks.utils;
+package com.coolisland.trackmystocks;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -16,12 +16,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.coolisland.CreateAccount;
 import com.coolisland.trackmystocks.database.AccountBO;
 import com.coolisland.trackmystocks.database.AccountDao;
+import com.coolisland.trackmystocks.utils.AccountUtilities;
+import com.coolisland.trackmystocks.utils.LogUtilities;
 
 /**
- * @author Silvio
+ * @author Grasshopper
  *
  */
 public class DeleteAccount {

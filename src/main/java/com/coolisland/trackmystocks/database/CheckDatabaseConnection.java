@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 
 /**
- * @author Silvio
+ * @author Grasshopper
  *
  */
 public class CheckDatabaseConnection {

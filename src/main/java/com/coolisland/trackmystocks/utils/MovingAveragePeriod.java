@@ -4,7 +4,7 @@
 package com.coolisland.trackmystocks.utils;
 
 /**
- * @author Silvio
+ * @author Grasshopper
  * 
  */
 public enum MovingAveragePeriod {

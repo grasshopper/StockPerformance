@@ -1,4 +1,4 @@
-package com.coolisland.trackmystocks.utils;
+package com.coolisland.trackmystocks.stockquotes;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -20,15 +20,18 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.coolisland.CreateAccount;
-import com.coolisland.CreateStock;
+import com.coolisland.trackmystocks.CreateAccount;
+import com.coolisland.trackmystocks.CreateStock;
 import com.coolisland.trackmystocks.database.AccountBO;
 import com.coolisland.trackmystocks.database.AccountDao;
 import com.coolisland.trackmystocks.database.StockBO;
 import com.coolisland.trackmystocks.database.StockDao;
 import com.coolisland.trackmystocks.database.StockQuoteHistoryBO;
 import com.coolisland.trackmystocks.database.StockQuoteHistoryDao;
-import com.coolisland.trackmystocks.database.StockQuoteHistoryDao;
+import com.coolisland.trackmystocks.utils.AccountUtilities;
+import com.coolisland.trackmystocks.utils.LogUtilities;
+import com.coolisland.trackmystocks.utils.StockUtilities;
+import com.coolisland.trackmystocks.utils.StringUtils;
 import com.coolisland.trackmystocks.yahoo.PopulateHistoricalPrices;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -40,69 +43,6 @@ public class MovingAveragesTester {
 
 	private int numRecordsPopulated = 0;
 
-	private int addMicrosoftRealPricesAsHistoricalPrices(StockQuoteHistoryDao pricesDao, StockBO stock) throws Exception {
-		
-//		final String msftHistoricalPricesFile = new String(
-//				"C:\\Development\\workspaces\\workspace-sts\\TrackMyStockWithoutSpring\\src\\test\\java\\com\\coolisland\\trackmystocks\\stockquotes\\MicrosoftHistoricalPrices.txt");
-		final String msftHistoricalPricesFile = new String("src\\test\\java\\com\\coolisland\\trackmystocks\\stockquotes\\MicrosoftHistoricalPrices.txt");
-		final String DATE_FORMAT = "yyyy-MM-dd";
-		CSVReader reader = null;
-		int row = 0;
-
-		try {
-			reader = new CSVReader(new FileReader(msftHistoricalPricesFile));
-		} catch (FileNotFoundException e) {
-			logger.error("ERROR: unable to open file: " + msftHistoricalPricesFile);
-			LogUtilities.logException(e);
-		}
-
-		StockQuoteHistoryBO quoteDataBean = new StockQuoteHistoryBO();
-
-		String[] nextLine;
-
-		try {
-			nextLine = reader.readNext();
-
-			if (nextLine == null) {
-				fail("no data found in " + msftHistoricalPricesFile);
-			}
-
-			// nextLine[] is an array of values from the line
-			while (nextLine != null) {
-				row++;
-
-				int columnIndex = 0;
-				String quoteDayStr = nextLine[columnIndex++];
-				java.util.Calendar temp = StringUtils.dateString2Calendar(quoteDayStr,
-						new SimpleDateFormat(DATE_FORMAT));
-				Date quoteDay = new Date(temp.getTimeInMillis());
-				String column2 = nextLine[columnIndex++];
-
-				quoteDataBean.setTickerId(stock.getId());
-				quoteDataBean.setLastTradeDateTime(quoteDay);
-				quoteDataBean.setQuoteDate(quoteDay);
-				quoteDataBean.setLastTradeAmount(column2);
-
-//				logger.debug(quoteDataBean.toString());
-
-				// add the price we just read to the database
-				try {
-					pricesDao.addTickerHistory(quoteDataBean);
-				} catch (SQLException e) {
-					logger.error(quoteDataBean.toString());
-
-					fail("Failed to add price to database.");
-				}
-
-				nextLine = reader.readNext();
-			}
-		} catch (IOException e) {
-			LogUtilities.logException(e);
-			fail("Failed to read price history and/or create bean");
-		}
-
-		return row;
-	}
 
 	@Test
 	public void getAll200DayAverages() throws Exception {
@@ -112,15 +52,12 @@ public class MovingAveragesTester {
 
 	@Test
 	public void microsoftRealPrices() throws Exception {
-		// create test stock
-		CreateStock stockCreator = new CreateStock();
-
 		// create test account
-		AccountBO account = stockCreator.createAccount();
+		AccountBO account = AccountUtilities.createTestAccount();
 
 		// add test stock to test account
 		try {
-			stockCreator.createStock(account);
+			StockUtilities.createTestStock(account);
 		} catch (Exception e1) {
 			LogUtilities.logException(e1);
 		}
@@ -131,7 +68,7 @@ public class MovingAveragesTester {
 		try {
 			stockDao = new StockDao();
 
-			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
+			stock = stockDao.getStockTickerBySymbol(StockUtilities.STOCK_SYMBOL);
 		} catch (SQLException e) {
 			LogUtilities.logException(e);
 		}
@@ -148,7 +85,7 @@ public class MovingAveragesTester {
 			fail("Unable to create StockQuoteHistoryDao");
 		}
 
-		int numberHistoricalPrices = addMicrosoftRealPricesAsHistoricalPrices(pricesDao, stock);
+		int numberHistoricalPrices = StockUtilities.addRealPricesToTestStock(pricesDao, stock);
 
 		logger.debug("Number of prices inserted " + numberHistoricalPrices);
 		assertTrue("No historical prices inserted", numberHistoricalPrices > 1);
@@ -172,15 +109,12 @@ public class MovingAveragesTester {
 
 	@Test
 	public void risingPrice() throws Exception {
-		// create test stock
-		CreateStock stockCreator = new CreateStock();
-
 		// create test account
-		AccountBO account = stockCreator.createAccount();
+		AccountBO account = AccountUtilities.createTestAccount();
 
 		// add test stock to test account
 		try {
-			stockCreator.createStock(account);
+			StockUtilities.createTestStock(account);
 		} catch (Exception e1) {
 			LogUtilities.logException(e1);
 		}
@@ -191,7 +125,7 @@ public class MovingAveragesTester {
 		try {
 			stockDao = new StockDao();
 
-			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
+			stock = stockDao.getStockTickerBySymbol(StockUtilities.STOCK_SYMBOL);
 		} catch (SQLException e) {
 			LogUtilities.logException(e);
 		}
@@ -375,15 +309,12 @@ public class MovingAveragesTester {
 
 	@Test
 	public void setupAllPriceHistoryToSameValue() {
-		// create test stock
-		CreateStock stockCreator = new CreateStock();
-
 		// create test account
-		AccountBO account = stockCreator.createAccount();
+		AccountBO account = AccountUtilities.createTestAccount();
 
 		// add test stock to test account
 		try {
-			stockCreator.createStock(account);
+			StockUtilities.createTestStock(account);
 		} catch (Exception e1) {
 			LogUtilities.logException(e1);
 		}
@@ -394,7 +325,7 @@ public class MovingAveragesTester {
 		try {
 			stockDao = new StockDao();
 
-			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
+			stock = stockDao.getStockTickerBySymbol(StockUtilities.STOCK_SYMBOL);
 		} catch (SQLException e) {
 			LogUtilities.logException(e);
 		}
@@ -433,13 +364,12 @@ public class MovingAveragesTester {
 	@Test
 	public void setupPriceHistoryForNewStock() {
 		// create account
-		CreateStock stockCreator = new CreateStock();
-		AccountBO account = stockCreator.createAccount();
+		AccountBO account = AccountUtilities.createTestAccount();
 
 		StockBO stock = null;
 		// add stock to account
 		try {
-			stock = stockCreator.createStock(account);
+			stock = StockUtilities.createTestStock(account);
 		} catch (Exception e1) {
 			LogUtilities.logException(e1);
 			fail("Failed to Create Stock");
@@ -451,7 +381,7 @@ public class MovingAveragesTester {
 		try {
 			stockDao = new StockDao();
 
-			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
+			stock = stockDao.getStockTickerBySymbol(StockUtilities.STOCK_SYMBOL);
 		} catch (SQLException e) {
 			LogUtilities.logException(e);
 			fail("Could find the test stock");
@@ -534,7 +464,7 @@ public class MovingAveragesTester {
 		try {
 			stockDao = new StockDao();
 
-			stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
+			stock = stockDao.getStockTickerBySymbol(StockUtilities.STOCK_SYMBOL);
 		} catch (SQLException e) {
 			LogUtilities.logException(e);
 		}
@@ -567,7 +497,7 @@ public class MovingAveragesTester {
 			try {
 				stockDao = new StockDao();
 
-				stock = stockDao.getStockTickerBySymbol(CreateStock.STOCK_SYMBOL);
+				stock = stockDao.getStockTickerBySymbol(StockUtilities.STOCK_SYMBOL);
 			} catch (SQLException e) {
 				LogUtilities.logException(e);
 			}

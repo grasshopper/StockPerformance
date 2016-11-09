@@ -22,7 +22,7 @@ import com.coolisland.trackmystocks.database.StockDao;
 
 
 /**
- * @author Silvio
+ * @author Grasshopper
  * 
  */
 public class TestTickersDao {

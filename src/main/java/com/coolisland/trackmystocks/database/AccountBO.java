@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import com.coolisland.trackmystocks.utils.StringUtils;
 
 /**
- * @author Silvio
+ * @author Grasshopper
  * 
  */
 public class AccountBO {

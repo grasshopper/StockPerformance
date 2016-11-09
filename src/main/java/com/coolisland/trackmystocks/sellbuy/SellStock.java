@@ -14,7 +14,7 @@ import com.coolisland.trackmystocks.database.StockDao;
 import com.coolisland.trackmystocks.utils.InputUtils;
 
 /**
- * @author Silvio
+ * @author Grasshopper
  * 
  */
 public class SellStock {

@@ -13,7 +13,6 @@ import com.coolisland.trackmystocks.database.AccountDao;
 import com.coolisland.trackmystocks.database.StockBO;
 import com.coolisland.trackmystocks.database.StockDao;
 import com.coolisland.trackmystocks.database.StockQuoteHistoryDao;
-import com.coolisland.trackmystocks.utils.MovingAveragesTester;
 import com.coolisland.trackmystocks.utils.QuoteHistoryUtilities;
 import com.coolisland.trackmystocks.utils.StringUtils;
 
@@ -218,10 +217,26 @@ public class MovingAverages {
 
 //		System.out.println("Calculating average moving price from: " + from + " to: " + to);
 		
-		if (prices.size() < (to - 1) || prices.size() < from || from < 0 || from > to || numDays < 0) {
+//		if (prices.size() < (to - 1) || prices.size() < from || from < 0 || from > to || numDays < 0) {
+//			return average;
+//		}
+
+		if (prices.size() < (to - 1)) {
 			return average;
 		}
 
+		if (from >= to) {
+			return average;
+		}
+		
+		if (from < 0) {
+			return average;
+		}
+		
+		if (numDays < 0) {
+			return average;
+		}
+		
 		
 //		System.out.println("From day: " + prices.get(from) + ", To Day: " + prices.get(to));
 		
@@ -433,8 +448,16 @@ public class MovingAverages {
 
 			prices = historyDao.getClosingPrices(tickerId, days);
 			
-			logger.debug("Closing prices for tickerID: " + tickerId + " with " + days);
-			logger.debug(prices.toString());
+			if (prices.size() != days) {
+				logger.error("We did not retrieve as many prices as we asked for.");
+				logger.error("Asked for " + days + ", but got " + prices.size());
+				logger.error("Ticker ID: " + tickerId);
+				logger.error("numberDaysBack: " + numberDaysBack);
+				logger.error(prices.toString());
+			}
+			else {
+				logger.trace(prices.toString());
+			}
 
 			for (int day = 0; day < numberDaysBack; day++) {
 				Double movingAvg = average(prices, day, day + TWO_HUNDRED_DAY_MOVING_AVG + 1);

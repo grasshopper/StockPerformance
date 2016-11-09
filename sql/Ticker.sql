@@ -42,6 +42,12 @@ from   ticker
 where  symbol = 'MXISX'
 order by symbol;
 
+
+select *
+from   ticker t
+where  t.id = 111;
+
+
 update ticker
 set    name = 'Great-West S&P SmallCap 600 Index Init'
 where  name = 'Maxim S&P SmallCap 600 Index Initial' 
@@ -54,6 +60,13 @@ delete FROM ticker
 where  symbol = 'RWIGX';
 
 commit;
+
+
+delete FROM ticker
+where  id = 115;
+
+commit;
+
 
 
 select count(*)

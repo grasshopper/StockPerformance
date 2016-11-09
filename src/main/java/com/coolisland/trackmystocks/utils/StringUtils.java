@@ -23,8 +23,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.coolisland.trackmystocks.stockquotes.DownloadSecurityPrices;
-
 public class StringUtils {
 	private static final Logger logger = LoggerFactory.getLogger(StringUtils.class);
 

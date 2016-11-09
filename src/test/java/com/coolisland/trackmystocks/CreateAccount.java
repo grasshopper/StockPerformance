@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.coolisland;
+package com.coolisland.trackmystocks;
 
 import static org.junit.Assert.fail;
 
@@ -15,10 +15,9 @@ import org.junit.Test;
 
 import com.coolisland.trackmystocks.database.AccountBO;
 import com.coolisland.trackmystocks.database.AccountDao;
-import com.coolisland.trackmystocks.utils.DeleteAccount;
 
 /**
- * @author Silvio
+ * @author Grasshopper
  *
  */
 public class CreateAccount {

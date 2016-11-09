@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * formats the price appropriately
  * 
- * @author Silvio
+ * @author Grasshopper
  *
  */
 public class PriceBean {
